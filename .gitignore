@@ -33,3 +33,4 @@ Thumbs.db
 # Игнорируем все возможные package-info (и исходники, и скомпилированные)
 **/package-info.java
 **/package-info.class
+.env
