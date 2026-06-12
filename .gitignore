@@ -1,0 +1,35 @@
+# === Gradle ===
+# Игнорируем папки сборки и кэш Gradle
+build/
+.gradle/
+# Но оставляем сам wrapper, чтобы проект собирался у всех
+!gradle/wrapper/gradle-wrapper.jar
+
+# === IntelliJ IDEA ===
+# Игнорируем настройки IDE и файлы модулей
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# === Java ===
+# Скомпилированные классы и артефакты
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# === SonarQube ===
+# Временные файлы анализатора
+.scannerwork/
+
+# === Операционные системы ===
+.DS_Store
+Thumbs.db
+
+# === Package-info ===
+# Игнорируем все возможные package-info (и исходники, и скомпилированные)
+**/package-info.java
+**/package-info.class
