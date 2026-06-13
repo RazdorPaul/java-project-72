@@ -52,8 +52,8 @@ public final class App {
     }
 
     private static String getDatabaseUrl() {
-        var url = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;";
-        return System.getenv().getOrDefault("DATABASE_URL", url);
+        var url = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1";
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", url);
     }
 }
 
