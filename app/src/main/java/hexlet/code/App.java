@@ -2,10 +2,16 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import hexlet.code.repositories.BaseRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 public final class App {
 
@@ -40,11 +46,16 @@ public final class App {
     public static Javalin getApp() throws Exception {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getDatabaseUrl());
-        BaseRepository.dataSource = new HikariDataSource(hikariConfig);
+        var dataSource = new HikariDataSource(hikariConfig);
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte());
         });
+        var sql = readResourceSQL("schema.sql");
+        try (var conn = dataSource.getConnection();
+                var stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        }
 
         app.get("/", ctx -> ctx.result("Hello World"));
 
@@ -54,6 +65,16 @@ public final class App {
     private static String getDatabaseUrl() {
         var url = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1";
         return System.getenv().getOrDefault("JDBC_DATABASE_URL", url);
+    }
+
+    private static String readResourceSQL(String file) throws IOException {
+        var inputStream = App.class.getClassLoader().getResourceAsStream(file);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Resource not found: " + file);
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
     }
 }
 
