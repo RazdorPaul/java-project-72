@@ -29,7 +29,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.11")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
-    implementation("com.h2database:h2")
+    implementation("com.h2database:h2:2.2.224")
 }
 
 tasks.test {
