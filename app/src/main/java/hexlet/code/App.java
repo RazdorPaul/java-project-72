@@ -2,6 +2,7 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import hexlet.code.repositories.BaseRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
@@ -39,9 +40,7 @@ public final class App {
     public static Javalin getApp() throws Exception {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getDatabaseUrl());
-        hikariConfig.setUsername(getDataBaseUsername());
-        hikariConfig.setPassword(getDataBasePassword());
-        var dataSource = new HikariDataSource(hikariConfig);
+        BaseRepository.dataSource = new HikariDataSource(hikariConfig);
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte());
@@ -53,19 +52,8 @@ public final class App {
     }
 
     private static String getDatabaseUrl() {
-        var url = "jdbc:postgresql://"
-                + DOTENV.get("DB_HOST", "localhost")
-                + ":" + DOTENV.get("DB_PORT", "5432")
-                + "/" + DOTENV.get("DB_NAME", "project_db");
+        var url = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;";
         return System.getenv().getOrDefault("DATABASE_URL", url);
-    }
-
-    private static String getDataBaseUsername() {
-        return DOTENV.get("DB_USERNAME", "project_user");
-    }
-
-    private static String getDataBasePassword() {
-        return DOTENV.get("DB_PASSWORD");
     }
 }
 
