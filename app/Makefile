@@ -14,3 +14,6 @@ clean:
 
 sonar:
 	./gradlew sonar
+
+run:
+	./gradlew run

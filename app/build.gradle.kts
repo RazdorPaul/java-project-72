@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("com.github.ben-manes.versions") version "0.51.0"
     id("org.sonarqube") version "7.3.1.8318"
+    id("com.github.johnrengelman.shadow") version "8.1.1"з
     application
     checkstyle
     jacoco
@@ -18,9 +19,16 @@ dependencies {
     // JUnit 5
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-
-    // AssertJ для удобных ассертов
-    testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("org.assertj:assertj-core:3.27.7")
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    implementation("io.javalin:javalin:6.1.3")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation("gg.jte:jte:3.1.9")
+    implementation("io.javalin:javalin-rendering:6.1.3")
+    implementation("org.postgresql:postgresql:42.7.11")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("io.github.cdimascio:dotenv-java:3.2.0")
 }
 
 tasks.test {
@@ -73,7 +81,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = "0.70".toBigDecimal() // 70% покрытие
+                minimum = "0.85".toBigDecimal() // 85% покрытие
             }
         }
     }
