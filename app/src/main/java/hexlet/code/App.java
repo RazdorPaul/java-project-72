@@ -2,9 +2,13 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
+
+import gg.jte.resolve.ResourceCodeResolver;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -49,7 +53,10 @@ public final class App {
         var dataSource = new HikariDataSource(hikariConfig);
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
-            config.fileRenderer(new JavalinJte());
+            ClassLoader loader = App.class.getClassLoader();
+            ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", loader);
+            TemplateEngine engine = TemplateEngine.create(codeResolver, ContentType.Html);
+            config.fileRenderer(new JavalinJte(engine));
         });
         var sql = readResourceSQL("schema.sql");
         try (var conn = dataSource.getConnection();
@@ -57,7 +64,7 @@ public final class App {
             stmt.executeUpdate(sql);
         }
 
-        app.get("/", ctx -> ctx.result("Hello World"));
+        app.get("/", ctx -> ctx.render("index.jte"));
 
         return app;
     }
