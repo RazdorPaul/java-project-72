@@ -4,6 +4,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
+import hexlet.code.controllers.UrlController;
+import hexlet.code.utils.NamedRoutes;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
@@ -51,6 +53,7 @@ public final class App {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getDatabaseUrl());
         var dataSource = new HikariDataSource(hikariConfig);
+        var urlCtl = new UrlController(dataSource);
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
             ClassLoader loader = App.class.getClassLoader();
@@ -64,7 +67,11 @@ public final class App {
             stmt.executeUpdate(sql);
         }
 
-        app.get("/", ctx -> ctx.render("index.jte"));
+        app.get(NamedRoutes.rootPath(), ctx -> ctx.render(NamedRoutes.indexPath()));
+        app.get(NamedRoutes.urlPath("{id}"), urlCtl::show);
+        app.get(NamedRoutes.urlsPath(), urlCtl::index);
+        app.post(NamedRoutes.urlsPath(), urlCtl::create);
+
 
         return app;
     }
@@ -84,5 +91,3 @@ public final class App {
         }
     }
 }
-
-

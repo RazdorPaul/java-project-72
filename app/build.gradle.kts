@@ -23,6 +23,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
     implementation("io.javalin:javalin:6.7.0")
+    testImplementation("io.javalin:javalin-testtools:6.7.0")
     implementation("org.slf4j:slf4j-simple:2.0.9")
     implementation("gg.jte:jte:3.2.2")
     implementation("io.javalin:javalin-rendering:6.7.0")
