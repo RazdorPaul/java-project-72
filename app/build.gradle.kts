@@ -55,6 +55,7 @@ sonar {
     properties {
         property ("sonar.projectKey", "RazdorPaul_java-project-72")
         property ("sonar.organization", "razdorpau")
+        property ("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
 

@@ -56,6 +56,7 @@ public final class App {
         var urlCtl = new UrlController(dataSource);
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
+            config.http.defaultContentType = "text/html; charset=utf-8";
             ClassLoader loader = App.class.getClassLoader();
             ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", loader);
             TemplateEngine engine = TemplateEngine.create(codeResolver, ContentType.Html);
