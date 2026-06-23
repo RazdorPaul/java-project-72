@@ -33,7 +33,7 @@ content = @`
         <button type="submit" class="btn btn-primary mb-3">Запустить проверку</button>
     </form>
 
-    <table class="table table-striped">
+    <table data-test="checks" class="table table-striped">
         <thead>
         <tr>
             <th>ID</th>
