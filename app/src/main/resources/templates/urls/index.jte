@@ -6,7 +6,7 @@
 
 @template.layout.page(
 flash = page.getFlash(),
-title = "Сайты",
+title = page.getTitle(),
 content = @`
     <h1 class="display-5">Сайты</h1>
 

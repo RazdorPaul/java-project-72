@@ -33,7 +33,7 @@ public final class UrlController {
             var check = checkRepository.findLastByUrlId(url.getId());
             check.ifPresent(urlCheck -> url.setChecks(List.of(urlCheck)));
         }
-        var page = new UrlsPage(urls, "Сайты", null);
+        var page = new UrlsPage(urls, null, "Сайты");
         ctx.render(NamedRoutes.urlsIndexPath(), model("page", page));
     }
 
