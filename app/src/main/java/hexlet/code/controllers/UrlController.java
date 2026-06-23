@@ -71,7 +71,7 @@ public final class UrlController {
                 check.setUrlId(id);
                 check.setId(checkRepository.save(check));
             } catch (Exception e) {
-                ctx.sessionAttribute("flash", "Произошла ошибка при проверке");
+                //ctx.sessionAttribute("flash", "Произошла ошибка при проверке");
             }
         }
         ctx.redirect(NamedRoutes.urlPath(id));
