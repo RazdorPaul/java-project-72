@@ -1,4 +1,5 @@
 @import hexlet.code.dto.UrlsPage
+@import hexlet.code.utils.UrlUtils
 @import java.time.format.DateTimeFormatter
 
 @param UrlsPage page
@@ -23,8 +24,16 @@ content = @`
             <tr>
                 <td>${url.getId()}</td>
                 <td><a href="/urls/${url.getId()}">${url.getName()}</a></td>
-                <td></td>
-                <td></td>
+                <td>
+                    @if (!url.getChecks().isEmpty())
+                        ${UrlUtils.formatDate(url.getChecks().getFirst().getCreatedAt())}
+                    @endif
+                </td>
+                <td>
+                    @if (!url.getChecks().isEmpty())
+                        ${url.getChecks().getFirst().getStatusCode()}
+                    @endif
+                </td>
             </tr>
         @endfor
         </tbody>

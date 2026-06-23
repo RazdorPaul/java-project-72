@@ -32,6 +32,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
     implementation("com.h2database:h2:2.2.224")
+    implementation("com.konghq:unirest-java:3.14.0")
+    implementation("org.jsoup:jsoup:1.17.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 tasks.test {

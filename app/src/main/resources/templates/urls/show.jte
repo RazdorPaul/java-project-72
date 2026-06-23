@@ -1,6 +1,9 @@
 @import hexlet.code.dto.UrlPage
+@import hexlet.code.dto.PageResultCheck
+@import hexlet.code.utils.UrlUtils
 
 @param UrlPage page
+@param PageResultCheck pageCheck
 
 @template.layout.page(
 flash = page.getFlash(),
@@ -26,7 +29,9 @@ content = @`
     </table>
 
     <h2 class="mt-5">Проверки</h2>
-    <button class="btn btn-primary mb-3">Запустить проверку</button>
+    <form action="/urls/${page.getUrl().getId()}/checks" method="post">
+        <button type="submit" class="btn btn-primary mb-3">Запустить проверку</button>
+    </form>
 
     <table class="table table-striped">
         <thead>
@@ -40,7 +45,16 @@ content = @`
         </tr>
         </thead>
         <tbody>
-        <!-- Здесь будут проверки (пока пусто) -->
+            @for (var check : pageCheck.getChecks())
+                <tr>
+                    <td>${check.getId()}</td>
+                    <td>${check.getStatusCode()}</td>
+                    <td>${UrlUtils.truncate(check.getH1(), 200)}</td>
+                    <td>${UrlUtils.truncate(check.getTitle(), 200)}</td>
+                    <td>${UrlUtils.truncate(check.getDescription(), 200)}</td>
+                    <td>${UrlUtils.formatDate(check.getCreatedAt())}</td>
+                </tr>
+            @endfor
         </tbody>
     </table>
 `

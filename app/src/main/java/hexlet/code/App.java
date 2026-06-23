@@ -29,6 +29,7 @@ public final class App {
                     directory("../").
                     ignoreIfMissing().
                     load();
+    private static HikariDataSource dataSource;
 
     private App() {
 
@@ -50,9 +51,11 @@ public final class App {
      * @throws Exception
      */
     public static Javalin getApp() throws Exception {
-        var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getDatabaseUrl());
-        var dataSource = new HikariDataSource(hikariConfig);
+        if (dataSource == null) {
+            var hikariConfig = new HikariConfig();
+            hikariConfig.setJdbcUrl(getDatabaseUrl());
+            dataSource = new HikariDataSource(hikariConfig);
+        }
         var urlCtl = new UrlController(dataSource);
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
@@ -72,13 +75,13 @@ public final class App {
         app.get(NamedRoutes.urlPath("{id}"), urlCtl::show);
         app.get(NamedRoutes.urlsPath(), urlCtl::index);
         app.post(NamedRoutes.urlsPath(), urlCtl::create);
-
+        app.post(NamedRoutes.urlPath("{id}/checks"), urlCtl::check);
 
         return app;
     }
 
     private static String getDatabaseUrl() {
-        var url = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1";
+        var url = "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000";
         return System.getenv().getOrDefault("JDBC_DATABASE_URL", url);
     }
 
@@ -89,6 +92,13 @@ public final class App {
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
+    public static void closeDataSource() {
+        if (dataSource != null) {
+            dataSource.close();
+            dataSource = null;
         }
     }
 }

@@ -86,4 +86,15 @@ public final class UrlRepository extends BaseRepository {
         }
         return urls;
     }
+    public Optional<Url> findByIdWithChecks(Long id, UrlCheckRepository repo) throws SQLException {
+        var url = findById(id);
+        url.ifPresent(value -> {
+            try {
+                value.setChecks(repo.findByUrlId(id));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return url;
+    }
 }

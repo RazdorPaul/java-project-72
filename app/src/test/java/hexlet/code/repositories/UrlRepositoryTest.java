@@ -3,6 +3,7 @@ package hexlet.code.repositories;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,5 +110,35 @@ class UrlRepositoryTest {
         assertThat(urls.get(0).getName()).isEqualTo("https://example3.com");
         assertThat(urls.get(1).getName()).isEqualTo("https://example2.com");
         assertThat(urls.get(2).getName()).isEqualTo("https://example1.com");
+    }
+
+    @Test
+    void testFindByIdWithChecks() throws SQLException, InterruptedException {
+        var url = new Url("https://example.com");
+        var urlId = urlRepository.save(url);
+
+        // Создаём UrlCheckRepository для загрузки проверок
+        var urlCheckRepository = new UrlCheckRepository(dataSource);
+
+        // Создаём несколько проверок
+        var check1 = new UrlCheck();
+        check1.setUrlId(urlId);
+        check1.setStatusCode(200);
+        check1.setTitle("First check");
+        urlCheckRepository.save(check1);
+
+        var check2 = new UrlCheck();
+        check2.setUrlId(urlId);
+        check2.setStatusCode(404);
+        check2.setTitle("Second check");
+        urlCheckRepository.save(check2);
+
+        // Вызываем метод с передачей UrlCheckRepository
+        var found = urlRepository.findByIdWithChecks(urlId, urlCheckRepository);
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(urlId);
+        assertThat(found.get().getChecks()).hasSize(2);
+        assertThat(found.get().getChecks().get(0).getStatusCode()).isEqualTo(404);
+        assertThat(found.get().getChecks().get(1).getStatusCode()).isEqualTo(200);
     }
 }

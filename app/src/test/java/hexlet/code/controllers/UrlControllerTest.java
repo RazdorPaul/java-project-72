@@ -5,11 +5,17 @@ import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UrlControllerTest {
+
+    @AfterAll
+    static void tearDown() {
+        App.closeDataSource();
+    }
 
     private static Javalin createApp() {
         try {
@@ -148,6 +154,50 @@ class UrlControllerTest {
             var response = client.post("/urls", requestBody);
 
             assertThat(response.code()).isEqualTo(422);
+        });
+    }
+
+    @Test
+    void testCreateCheck() {
+        JavalinTest.test(createApp(), (server, client) -> {
+            var httpClient = new okhttp3.OkHttpClient.Builder()
+                    .followRedirects(false)
+                    .build();
+
+            var url = "http://localhost:" + server.port() + "/urls";
+
+            // 1. Создаем URL
+            var requestBody = RequestBody.create(
+                    "url=https://example.com",
+                    MediaType.parse("application/x-www-form-urlencoded; charset=utf-8")
+            );
+            var request = new okhttp3.Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .build();
+            String urlId;
+            try (var response = httpClient.newCall(request).execute()) {
+                var location = response.header("Location");
+                urlId = location.replace("/urls/", "");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            // 2. Отправляем запрос на проверку
+            var checkRequestUrl = "http://localhost:" + server.port() + "/urls/" + urlId + "/checks";
+            var checkRequest = new okhttp3.Request.Builder()
+                    .url(checkRequestUrl)
+                    .post(RequestBody.create("", null))
+                    .build();
+
+            try (var checkResponse = httpClient.newCall(checkRequest).execute()) {
+                // 3. Проверяем ответ
+                assertThat(checkResponse.code()).isEqualTo(302);
+                assertThat(checkResponse.header("Location")).contains("/urls/" + urlId);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 }
