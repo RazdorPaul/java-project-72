@@ -39,7 +39,8 @@ public final class UrlController {
 
     public void show(Context ctx) throws SQLException {
         var url = urlRepository.findByIdWithChecks(ctx.pathParamAsClass("id", Long.class)
-                .get(), checkRepository).orElseThrow(() -> new NotFoundResponse("Такого сайта в базе нет!"));
+                .get(), checkRepository)
+                .orElseThrow(() -> new NotFoundResponse("Такого сайта в базе нет!"));
         String flash = ctx.consumeSessionAttribute("flash");
         var title = url.getName();
         var page = new UrlPage(url, flash, title);
@@ -54,7 +55,8 @@ public final class UrlController {
         } catch (Exception e) {
             ctx.sessionAttribute("flash", "Некорректный URL");
             ctx.status(422);
-            ctx.render(NamedRoutes.indexPath());
+            ctx.render(NamedRoutes.indexPath(),
+                    model("flash", ctx.consumeSessionAttribute("flash")));
             return;
         }
         var existUrl = urlRepository.findByName(urlString);
@@ -72,6 +74,7 @@ public final class UrlController {
                 check.setId(checkRepository.save(check));
             } catch (Exception e) {
                 //ctx.sessionAttribute("flash", "Произошла ошибка при проверке");
+
             }
         }
         ctx.redirect(NamedRoutes.urlPath(id));
