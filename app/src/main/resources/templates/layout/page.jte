@@ -1,10 +1,11 @@
 @import gg.jte.Content
 @import hexlet.code.utils.NamedRoutes
+@import java.util.Map
 
 
 @param String title
 @param Content content
-@param String flash
+@param Map<String, String> flash = null
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -43,13 +44,10 @@
             </div>
         </nav>
         <main class="container mt-4 flex-grow-1">
-            @if (flash != null && !flash.isBlank())
-                <div class="alert alert-info alert-dismissible fade show"
-                     role="alert">
-                    ${flash}
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"></button>
+            @if (flash != null && !flash.isEmpty())
+                <div class="alert alert-${flash.get("type")} alert-dismissible fade show" role="alert">
+                    ${flash.get("message")}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
             ${content}

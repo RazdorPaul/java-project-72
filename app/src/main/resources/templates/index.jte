@@ -1,4 +1,6 @@
-@param String flash
+@import java.util.Map
+
+@param Map<String, String> flash
 
 @template.layout.page(
     flash = flash,

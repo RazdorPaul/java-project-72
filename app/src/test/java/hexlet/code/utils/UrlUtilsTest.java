@@ -70,4 +70,10 @@ class UrlUtilsTest {
         assertThat(result).endsWith("...");
         assertThat(result).startsWith("a".repeat(200));
     }
+
+    @Test
+    void testFormatDateWithNull() {
+        String result = UrlUtils.formatDate(null);
+        assertThat(result).isEqualTo("");
+    }
 }

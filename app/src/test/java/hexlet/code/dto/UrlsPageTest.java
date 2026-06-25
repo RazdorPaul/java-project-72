@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +17,7 @@ class UrlsPageTest {
         var url1 = new Url(1L, "https://example1.com", now);
         var url2 = new Url(2L, "https://example2.com", now);
         var urls = List.of(url1, url2);
-        var flash = "Тестовое сообщение";
+        var flash = Map.of("message", " Тестовое сообщение");
         var title = "Список сайтов";
 
         var page = new UrlsPage(urls, flash, title);

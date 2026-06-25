@@ -17,14 +17,24 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public final class UrlController {
     private final UrlRepository urlRepository;
     private final UrlCheckRepository checkRepository;
+    private final PageChecker pageChecker;
 
     public UrlController(HikariDataSource data) {
-        urlRepository = new UrlRepository(data);
-        checkRepository = new UrlCheckRepository(data);
+        //urlRepository = new UrlRepository(data);
+        //checkRepository = new UrlCheckRepository(data);
+        //pageChecker = new PageChecker();
+        this(data, new PageChecker());
+    }
+
+    UrlController(HikariDataSource data, PageChecker checker) {
+        this.urlRepository = new UrlRepository(data);
+        this.checkRepository = new UrlCheckRepository(data);
+        this.pageChecker = checker;
     }
 
     public void index(Context ctx) throws SQLException {
@@ -41,7 +51,7 @@ public final class UrlController {
         var url = urlRepository.findByIdWithChecks(ctx.pathParamAsClass("id", Long.class)
                 .get(), checkRepository)
                 .orElseThrow(() -> new NotFoundResponse("Такого сайта в базе нет!"));
-        String flash = ctx.consumeSessionAttribute("flash");
+        Map<String, String> flash = ctx.consumeSessionAttribute("flash");
         var title = url.getName();
         var page = new UrlPage(url, flash, title);
         var pageCheck = new PageResultCheck(url.getChecks());
@@ -53,7 +63,10 @@ public final class UrlController {
         try {
             urlString = UrlUtils.getBaseUrl(urlString);
         } catch (Exception e) {
-            ctx.sessionAttribute("flash", "Некорректный URL");
+            ctx.sessionAttribute("flash", Map.of(
+                    "message", "Некорректный URL",
+                    "type", "danger"
+            ));
             ctx.status(422);
             ctx.render(NamedRoutes.indexPath(),
                     model("flash", ctx.consumeSessionAttribute("flash")));
@@ -62,19 +75,23 @@ public final class UrlController {
         var existUrl = urlRepository.findByName(urlString);
         Long id;
         if (existUrl.isPresent()) {
-            ctx.sessionAttribute("flash", "Страница уже существует");
+            ctx.sessionAttribute("flash", Map.of(
+                    "message", "Страница уже существует",
+                    "type", "warning"
+            ));
             id = existUrl.get().getId();
         } else {
             id = urlRepository.save(new Url(urlString));
-            ctx.sessionAttribute("flash", "Страница успешно добавлена");
+            ctx.sessionAttribute("flash", Map.of(
+                    "message", "Страница успешно добавлена",
+                    "type", "success"
+            ));
             try {
-                var checker = new PageChecker();
-                var check = checker.check(urlString);
-                check.setUrlId(id);
-                check.setId(checkRepository.save(check));
+                var checker = this.pageChecker.check(urlString);
+                checker.setUrlId(id);
+                checker.setId(checkRepository.save(checker));
             } catch (Exception e) {
-                //ctx.sessionAttribute("flash", "Произошла ошибка при проверке");
-
+                System.err.println("Ошибка при первой проверке URL: " + e.getMessage());
             }
         }
         ctx.redirect(NamedRoutes.urlPath(id));
@@ -83,14 +100,20 @@ public final class UrlController {
     public void check(Context ctx) throws SQLException {
         var urlId = ctx.pathParamAsClass("id", Long.class).get();
         var url = urlRepository.findById(urlId);
-        var pageChecker = new PageChecker();
         try {
-            var check = pageChecker.check(url.get().getName());
-            check.setUrlId(urlId);
-            check.setId(checkRepository.save(check));
-            ctx.sessionAttribute("flash", "Страница успешно проверена");
+            var checker = this.pageChecker.check(url.get().getName());
+            checker.setUrlId(urlId);
+            checker.setId(checkRepository.save(checker));
+            ctx.sessionAttribute("flash", Map.of(
+                    "message", "Страница успешно проверена",
+                    "type", "success"
+            ));
         } catch (Exception e) {
-            ctx.sessionAttribute("flash", "Произошла ошибка при проверке");
+            ctx.sessionAttribute("flash", Map.of(
+                    "message", "Произошла ошибка при проверке",
+                    "type", "danger"
+            ));
+            System.err.println("Ошибка при проверке URL: " + e.getMessage());
         }
         ctx.redirect(NamedRoutes.urlPath(urlId));
     }
