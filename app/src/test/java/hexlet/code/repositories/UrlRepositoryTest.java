@@ -154,7 +154,7 @@ class UrlRepositoryTest {
         assertThat(found.get().getChecks().get(1).getStatusCode()).isEqualTo(200);
     }
     @Test
-    void testFindById_Existing() throws SQLException {
+    void testFindByIdExisting() throws SQLException {
         // Сначала сохраняем - это активирует ветку "найдено" при поиске
         var url = new Url("https://found.com");
         var id = urlRepository.save(url);
@@ -166,7 +166,7 @@ class UrlRepositoryTest {
     }
 
     @Test
-    void testFindByName_Existing() throws SQLException {
+    void testFindByNameExisting() throws SQLException {
         var url = new Url("https://found-by-name.com");
         urlRepository.save(url);
 
